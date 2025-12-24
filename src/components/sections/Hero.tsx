@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowDown, Github, Linkedin, Mail, Phone, Download, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Globe from 'react-globe.gl';
+import { useTheme } from 'next-themes';
 
 // Neural network particles component
 const NeuralParticles = () => {
@@ -211,10 +212,10 @@ const GlobeVisualization = () => {
   );
 };
 
-// Decorative lamp component
+// Decorative lamp component with theme-aware cat
 const DecorativeLamp = ({ isDark }: { isDark: boolean }) => (
   <motion.div
-    className="absolute left-4 md:left-8 top-1/3 -translate-y-1/2"
+    className="absolute left-4 md:left-8 top-1/3 -translate-y-1/2 z-10"
     initial={{ opacity: 0, x: -50 }}
     animate={{ opacity: 1, x: 0 }}
     transition={{ delay: 1, duration: 0.8 }}
@@ -226,33 +227,54 @@ const DecorativeLamp = ({ isDark }: { isDark: boolean }) => (
       {/* Lamp head */}
       <div className="absolute -top-2 -left-3 w-7 h-5">
         <div className="w-full h-full bg-muted-foreground/60 rounded-t-lg" />
-        {/* Light glow */}
+        {/* Light glow - shows in light mode */}
         {!isDark && (
           <motion.div
             className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full"
             style={{
-              background: 'radial-gradient(circle, hsla(45, 90%, 60%, 0.3) 0%, transparent 70%)',
+              background: 'radial-gradient(circle, hsla(45, 90%, 60%, 0.4) 0%, transparent 70%)',
             }}
-            animate={{ opacity: [0.5, 0.8, 0.5] }}
+            animate={{ opacity: [0.5, 0.9, 0.5] }}
             transition={{ duration: 2, repeat: Infinity }}
           />
         )}
       </div>
       
-      {/* Cat silhouette */}
+      {/* Cat silhouette - different states based on theme */}
       <motion.div
         className="absolute -bottom-4 -left-4 text-2xl"
-        animate={{ y: [0, -2, 0] }}
-        transition={{ duration: 3, repeat: Infinity }}
+        animate={{ 
+          y: [0, -2, 0],
+          rotate: isDark ? [0, 5, 0] : 0, // Cat moves more in dark (awake)
+        }}
+        transition={{ duration: isDark ? 2 : 4, repeat: Infinity }}
       >
-        🐱
+        {isDark ? '🐱' : '😺'} {/* Active cat in dark, sleepy in light */}
       </motion.div>
+      
+      {/* Zzz for sleeping cat in light mode */}
+      {!isDark && (
+        <motion.span
+          className="absolute -bottom-2 left-4 text-xs text-muted-foreground"
+          animate={{ opacity: [0, 1, 0], y: [-2, -8, -2] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          💤
+        </motion.span>
+      )}
     </div>
   </motion.div>
 );
 
 export const Hero = () => {
-  const [isDark] = useState(true); // Always dark mode
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  const isDark = mounted ? theme === 'dark' : true;
 
   const socialLinks = [
     { icon: Github, href: 'https://github.com/gmanoj2005', label: 'GitHub' },

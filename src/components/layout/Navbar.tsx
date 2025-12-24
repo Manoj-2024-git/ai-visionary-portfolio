@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Download } from 'lucide-react';
+import { Menu, X, Download, Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTheme } from 'next-themes';
 
 const navItems = [
   { label: 'Home', href: '#home' },
@@ -17,6 +18,12 @@ export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -47,6 +54,8 @@ export const Navbar = () => {
       element.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+  const isDark = theme === 'dark';
 
   return (
     <motion.header
@@ -99,15 +108,30 @@ export const Navbar = () => {
                   <motion.div
                     layoutId="activeSection"
                     className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary"
-                    style={{ boxShadow: '0 0 10px hsl(160 84% 39%)' }}
+                    style={{ boxShadow: '0 0 10px hsl(var(--primary))' }}
                   />
                 )}
               </motion.a>
             ))}
           </div>
 
-          {/* CTA Button */}
+          {/* CTA Button & Theme Toggle */}
           <div className="hidden lg:flex items-center gap-3">
+            {mounted && (
+              <motion.button
+                onClick={() => setTheme(isDark ? 'light' : 'dark')}
+                className="p-2 rounded-full bg-muted/50 border border-border hover:border-primary/50 transition-colors"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                aria-label="Toggle theme"
+              >
+                {isDark ? (
+                  <Sun className="w-5 h-5 text-primary" />
+                ) : (
+                  <Moon className="w-5 h-5 text-primary" />
+                )}
+              </motion.button>
+            )}
             <Button
               asChild
               className="btn-glow rounded-full px-6"
@@ -124,13 +148,30 @@ export const Navbar = () => {
           </div>
 
           {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden p-2 text-foreground hover:text-primary transition-colors"
-            aria-label="Toggle menu"
-          >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          <div className="flex lg:hidden items-center gap-2">
+            {mounted && (
+              <motion.button
+                onClick={() => setTheme(isDark ? 'light' : 'dark')}
+                className="p-2 rounded-full bg-muted/50 border border-border hover:border-primary/50 transition-colors"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                aria-label="Toggle theme"
+              >
+                {isDark ? (
+                  <Sun className="w-5 h-5 text-primary" />
+                ) : (
+                  <Moon className="w-5 h-5 text-primary" />
+                )}
+              </motion.button>
+            )}
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="p-2 text-foreground hover:text-primary transition-colors"
+              aria-label="Toggle menu"
+            >
+              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
       </nav>
 
